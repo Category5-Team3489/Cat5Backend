@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cat5DB", "Cat5DB\Cat5DB.csproj", "{DBE13546-65E2-4D0B-8712-E073BA5E9AB4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DBE13546-65E2-4D0B-8712-E073BA5E9AB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBE13546-65E2-4D0B-8712-E073BA5E9AB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBE13546-65E2-4D0B-8712-E073BA5E9AB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBE13546-65E2-4D0B-8712-E073BA5E9AB4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {18E2A609-D277-4555-BA9A-B1AEAE51C512}
+	EndGlobalSection
+EndGlobal
