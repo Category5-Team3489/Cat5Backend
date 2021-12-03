@@ -6,8 +6,10 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.UseHttpsRedirection();
-app.Urls.Add("https://localhost:443");
+// FRICK YOU SSL
+
+//app.UseHttpsRedirection();
+//app.Urls.Add("http://*:80");
 
 var summaries = new[]
 {
