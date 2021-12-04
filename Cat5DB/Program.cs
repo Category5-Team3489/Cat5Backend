@@ -9,14 +9,14 @@ var app = builder.Build();
 // FRICK YOU SSL
 
 //app.UseHttpsRedirection();
-//app.Urls.Add("http://*:80");
+app.Urls.Add("http://*:80");
 
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/", () =>
 {
     var forecast = Enumerable.Range(1, 5).Select(index =>
        new WeatherForecast
