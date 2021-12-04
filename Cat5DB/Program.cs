@@ -1,43 +1,57 @@
-using Microsoft.AspNetCore.Cors;
-
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-//builder.Services.AddCors();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
-// FRICK YOU SSL
-
-//https://enable-cors.org/server_aspnet.html
-
-//app.UseHttpsRedirection();
 app.Urls.Add("http://*:80");
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+MetaDatabase db = new($"{Directory.GetCurrentDirectory()}/Cat5.db");
+List<Task> tasks = new();
+tasks.Add(Task.Run(() => db.Start(1, 10000)));
 
-app.MapGet("/", async (ctx) =>
+// DB
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-       new WeatherForecast
-       (
-           DateTime.Now.AddDays(index),
-           Random.Shared.Next(-20, 55),
-           summaries[Random.Shared.Next(summaries.Length)]
-       ))
-        .ToArray();
-    ctx.Response.Headers.Append("Access-Control-Allow-Origin", "*");
-    await ctx.Response.WriteAsJsonAsync(forecast);
+    // Attendance Table
+    {
+        // Events Entry
+        {
+
+        }
+        // Names Entry
+        {
+            // List
+            {
+                // NameDBObject
+                {
+
+                }
+            }
+        }
+        // Attendance Entry
+        {
+
+        }
+        // Permissions Entry
+        {
+
+        }
+    }
+}
+
+await db.ExecuteAsync(db =>
+{
+    Console.WriteLine(db.TableExists("test"));
+    Console.WriteLine(db.TableExists("teste"));
 });
 
-app.Run();
-
-internal record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
+app.MapGet("/", async ctx =>
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+    await db.ExecuteAsync(db =>
+    {
+        db.EnsureTableExists("test");
+    });
+    ctx.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+    await ctx.Response.WriteAsync("Hello, World!");
+});
+
+tasks.Add(app.RunAsync());
+await Task.WhenAll(tasks);
