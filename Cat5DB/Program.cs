@@ -37,6 +37,10 @@ tasks.Add(Task.Run(() => db.Start(1, 10000)));
     }
 }
 
+// lock in really old attendance
+// fss
+// google sheets, using team3489 email for github
+
 await db.ExecuteAsync(db =>
 {
     Console.WriteLine(db.TableExists("test"));
