@@ -17,8 +17,7 @@ app.Use((ctx, next) =>
 });
 
 MetaDatabase db = new($"{Directory.GetCurrentDirectory()}/Cat5.db");
-List<Task> tasks = new();
-tasks.Add(Task.Run(() => db.Start(1, 10000)));
+Task dbTask = Task.Run(() => db.Start(1, 10000));
 
 // DB
 {
@@ -49,7 +48,7 @@ tasks.Add(Task.Run(() => db.Start(1, 10000)));
     }
 }
 
-app.UseCertificateForwarding();
+//app.UseCertificateForwarding();
 
 // lock in really old attendance
 // fss
@@ -71,5 +70,12 @@ app.MapGet(paths["root"], async ctx =>
     await ctx.Response.WriteAsync("Hello, World!");
 });
 
-tasks.Add(app.RunAsync());
-await Task.WhenAll(tasks);
+Task appTask = app.RunAsync();
+
+Console.WriteLine("[Cat5DB] API running");
+await appTask;
+Console.WriteLine("[Cat5DB] API stopped, stopping database");
+await db.StopAsync();
+await dbTask;
+
+Console.WriteLine("[Cat5DB] Shut down");
