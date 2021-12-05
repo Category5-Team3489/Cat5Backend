@@ -3,10 +3,16 @@ var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
 app.Urls.Add("http://*:80");
+
+Dictionary<string, string> paths = new();
+paths.Add("root", "/");
+
 app.Use((ctx, next) =>
 {
     string url = ctx.Request.Host + ctx.Request.Path;
-    if (url != "localhost/" || ctx.Request.Method != "GET") ctx.Abort();
+    string host = ctx.Request.Host.ToString();
+    bool validHost = host == "db.team3489.tk" || host == "localhost";
+    if (!validHost || !paths.ContainsValue(ctx.Request.Path) || ctx.Request.Method != "GET") ctx.Abort();
     return next(ctx);
 });
 
@@ -55,9 +61,8 @@ await db.ExecuteAsync(db =>
     Console.WriteLine(db.TableExists("teste"));
 });
 
-app.MapGet("/", async ctx =>
+app.MapGet(paths["root"], async ctx =>
 {
-    Console.WriteLine("E");
     await db.ExecuteAsync(db =>
     {
         db.EnsureTableExists("test");
