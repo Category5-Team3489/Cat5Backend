@@ -3,6 +3,12 @@ var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
 app.Urls.Add("http://*:80");
+app.Use((ctx, next) =>
+{
+    string url = ctx.Request.Host + ctx.Request.Path;
+    if (url != "localhost/" || ctx.Request.Method != "GET") ctx.Abort();
+    return next(ctx);
+});
 
 MetaDatabase db = new($"{Directory.GetCurrentDirectory()}/Cat5.db");
 List<Task> tasks = new();
@@ -37,6 +43,8 @@ tasks.Add(Task.Run(() => db.Start(1, 10000)));
     }
 }
 
+app.UseCertificateForwarding();
+
 // lock in really old attendance
 // fss
 // google sheets, using team3489 email for github
@@ -49,6 +57,7 @@ await db.ExecuteAsync(db =>
 
 app.MapGet("/", async ctx =>
 {
+    Console.WriteLine("E");
     await db.ExecuteAsync(db =>
     {
         db.EnsureTableExists("test");
