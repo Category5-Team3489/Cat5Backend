@@ -27,11 +27,11 @@ public class DatabaseAccessor
 
     public async Task EventExists(string name)
     {
-
+        if (db.TryGetTable())
     }
 
     public async Task CreateEvent()
     {
-        
+        Guid guid = Guid.NewGuid();
     }
 }
