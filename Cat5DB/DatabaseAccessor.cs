@@ -24,11 +24,12 @@ public class DatabaseAccessor
         });
     }
 
-    // Event Entry: Name: EventId: Guid
-        // StringEntry: EventName
+    // Event StringEntry: Name: EventId: Guid, Value: Event Name
         // StringEntry: EventType
         // LongEntry: EventTime: DateTime: Local File Time
         // LongEntry: EventLength: TimeSpan: Ticks
+    // Name StringEntry: Name: PersonId: Guid, Value: Full Name
+    // Attendance StringEntry: 
 
 
     public async Task EventExists(string name)
