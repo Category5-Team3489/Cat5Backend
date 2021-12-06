@@ -24,13 +24,19 @@ public class DatabaseAccessor
         });
     }
 
+    // Event Entry: Name: EventId: Guid
+        // StringEntry: EventName
+        // StringEntry: EventType
+        // LongEntry: EventTime: DateTime: Local File Time
+        // LongEntry: EventLength: TimeSpan: Ticks
+
 
     public async Task EventExists(string name)
     {
         if (db.TryGetTable())
     }
 
-    public async Task CreateEvent()
+    public async Task<Entry> CreateEvent()
     {
         Guid guid = Guid.NewGuid();
     }
