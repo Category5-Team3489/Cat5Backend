@@ -16,13 +16,10 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
-
 app.UseCors("AllowSpecificOrigins");
-
-//app.Urls.Add("https://*:443");
 
 Dictionary<string, string> paths = new();
 paths.Add("root", "/");
@@ -86,7 +83,7 @@ app.MapGet(paths["root"], async ctx =>
     {
         db.EnsureTableExists("test");
     });
-    ctx.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+    //ctx.Response.Headers.Append("Access-Control-Allow-Origin", "*");
     await ctx.Response.WriteAsync("Hello, World!");
 });
 

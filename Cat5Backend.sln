@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cat5DB", "Cat5DB\Cat5DB.csproj", "{DBE13546-65E2-4D0B-8712-E073BA5E9AB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cat5DB", "Cat5DB\Cat5DB.csproj", "{DBE13546-65E2-4D0B-8712-E073BA5E9AB4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cat5Testing", "Cat5Testing\Cat5Testing.csproj", "{EE24B534-22EB-427F-A922-ED0916703726}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{DBE13546-65E2-4D0B-8712-E073BA5E9AB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBE13546-65E2-4D0B-8712-E073BA5E9AB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBE13546-65E2-4D0B-8712-E073BA5E9AB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE24B534-22EB-427F-A922-ED0916703726}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE24B534-22EB-427F-A922-ED0916703726}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE24B534-22EB-427F-A922-ED0916703726}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE24B534-22EB-427F-A922-ED0916703726}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
