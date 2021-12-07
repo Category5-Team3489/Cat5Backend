@@ -90,10 +90,13 @@ app.MapGet("/events", async ctx =>
         if (ctx.Request.Query.ContainsKey("end"))
             if (long.TryParse(ctx.Request.Query["end"], out long endFileTime))
                 end = DateTime.FromFileTime(endFileTime);
+        List<Cat5Event> events = await dba.GetEvents(start, end);
+        await ctx.Response.WriteAsJsonAsync(events);
     }
-    catch (Exception) { }
-    List<Cat5Event> events = await dba.GetEvents(start, end);
-    await ctx.Response.WriteAsJsonAsync(events);
+    catch (Exception)
+    {
+        await ctx.Response.WriteAsync("404");
+    }
 });
 
 Task appTask = app.RunAsync();
