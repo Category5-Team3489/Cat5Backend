@@ -25,8 +25,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseCors("AllowSpecificOrigins");
 
-MetaDatabase db = new($"{Directory.GetCurrentDirectory()}/Cat5.db");
-Task dbTask = Task.Run(() => db.Start(1, 1000));
+MetaDatabase database = new($"{Directory.GetCurrentDirectory()}/Cat5.db");
+Task dbTask = Task.Run(() => database.Start(1, 1000));
 
 // DB
 {
@@ -57,21 +57,49 @@ Task dbTask = Task.Run(() => db.Start(1, 1000));
     }
 }
 
-DatabaseAccessor dba = new(db);
+DatabaseAccessor dba = new(database);
 
 await dba.Init();
 
 app.MapGet("/", async ctx =>
 {
-    await ctx.Response.WriteAsync("Hello, World!");
+    Cat5Event a = new(Guid.NewGuid(), "12/8/21 Meeting", "Meeting", new DateTime(2021, 12, 8, 17, 30, 0), new TimeSpan(2, 0, 0));
+    string t = JsonSerializer.Serialize(a);
+    Cat5Event b = JsonSerializer.Deserialize<Cat5Event>(t);
+    Console.WriteLine(t);
+    //ctx.Request.ReadFromJsonAsync(Cat5Event);
+    await ctx.Response.WriteAsync(t);
+    //await ctx.Response.WriteAsync("Hello, World!");
 });
 
+app.MapGet("/create", async ctx =>
+{
+    var e = await dba.CreateEvent("12/8/21 Meeting", "Meeting", new DateTime(2021, 12, 8, 17, 30, 0), new TimeSpan(2, 0, 0));
+    await ctx.Response.WriteAsJsonAsync(e);
+});
 
+app.MapGet("/events", async ctx =>
+{
+    DateTime start = DateTime.MinValue;
+    DateTime end = DateTime.MaxValue;
+    try
+    {
+        if (ctx.Request.Query.ContainsKey("start"))
+            if (long.TryParse(ctx.Request.Query["start"], out long startFileTime))
+                start = DateTime.FromFileTime(startFileTime);
+        if (ctx.Request.Query.ContainsKey("end"))
+            if (long.TryParse(ctx.Request.Query["end"], out long endFileTime))
+                end = DateTime.FromFileTime(endFileTime);
+    }
+    catch (Exception) { }
+    List<Cat5Event> events = await dba.GetEvents(start, end);
+    await ctx.Response.WriteAsJsonAsync(events);
+});
 
 Task appTask = app.RunAsync();
 Console.WriteLine("[Cat5DB] API running");
 await appTask;
 Console.WriteLine("[Cat5DB] API stopped, stopping database");
-await db.StopAsync();
+await database.StopAsync();
 await dbTask;
 Console.WriteLine("[Cat5DB] Shut down");
