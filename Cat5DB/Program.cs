@@ -84,8 +84,8 @@ app.MapGet("/events", async ctx =>
     DateTime end = DateTime.MaxValue;
     try
     {
-        if (ctx.Request.Query.ContainsKey("start"))
-            if (long.TryParse(ctx.Request.Query["start"], out long startFileTime))
+        if (ctx.Request.Query.ContainsKey("start") && long.TryParse(ctx.Request.Query["start"], out long startFileTime))
+            //if (startFileTime >= DateTime.MinValue.Ticks && startFileTime <= DateTime.Max)
                 start = DateTime.FromFileTime(startFileTime);
         if (ctx.Request.Query.ContainsKey("end"))
             if (long.TryParse(ctx.Request.Query["end"], out long endFileTime))
