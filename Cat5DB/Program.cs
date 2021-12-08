@@ -28,6 +28,28 @@ app.UseCors("AllowSpecificOrigins");
 MetaDatabase database = new($"{Directory.GetCurrentDirectory()}/Cat5.db");
 Task dbTask = Task.Run(() => database.Start(1, 1000));
 
+string apiKeysPath = $"{Directory.GetCurrentDirectory()}/apikeys.secret";
+List<string> apiKeys;
+if (File.Exists(apiKeysPath)) apiKeys = new(File.ReadAllLines(apiKeysPath));
+else apiKeys = new();
+
+app.Use(async (ctx, next) =>
+{
+    if (!ctx.Request.Query.ContainsKey("key"))
+    {
+        ctx.Response.StatusCode = 400;
+        await ctx.Response.WriteAsync("400");
+        return;
+    }
+    if (!apiKeys.Contains(ctx.Request.Query["key"]))
+    {
+        ctx.Response.StatusCode = 401;
+        await ctx.Response.WriteAsync("401");
+        return;
+    }
+    await next(ctx);
+});
+
 // DB
 {
     // Attendance Table
@@ -82,21 +104,19 @@ app.MapGet("/events", async ctx =>
 {
     DateTime start = DateTime.MinValue;
     DateTime end = DateTime.MaxValue;
-    try
-    {
-        if (ctx.Request.Query.ContainsKey("start") && long.TryParse(ctx.Request.Query["start"], out long startFileTime))
-            if (startFileTime >= DateTime.MinValue.Ticks && startFileTime <= DateTime.MaxValue.Ticks)
-                start = DateTime.FromFileTime(startFileTime);
-        if (ctx.Request.Query.ContainsKey("end"))
-            if (long.TryParse(ctx.Request.Query["end"], out long endFileTime))
-                end = DateTime.FromFileTime(endFileTime);
-        List<Cat5Event> events = await dba.GetEvents(start, end);
-        await ctx.Response.WriteAsJsonAsync(events);
-    }
-    catch (Exception)
-    {
-        await ctx.Response.WriteAsync("404");
-    }
+    if (ctx.Request.Query.ContainsKey("start") && long.TryParse(ctx.Request.Query["start"], out long startFileTime))
+        if (ValidationHelpers.FileTimeValid(startFileTime))
+            start = DateTime.FromFileTime(startFileTime);
+    if (ctx.Request.Query.ContainsKey("end") && long.TryParse(ctx.Request.Query["end"], out long endFileTime))
+        if (ValidationHelpers.FileTimeValid(endFileTime))
+            end = DateTime.FromFileTime(endFileTime);
+    List<Cat5Event> events = await dba.GetEvents(start, end);
+    await ctx.Response.WriteAsJsonAsync(events);
+});
+
+app.MapGet("/guid", async ctx =>
+{
+    await ctx.Response.WriteAsync(Guid.NewGuid().ToString());
 });
 
 Task appTask = app.RunAsync();
