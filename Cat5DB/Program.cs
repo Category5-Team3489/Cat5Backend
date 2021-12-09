@@ -6,12 +6,14 @@ var builder = WebApplication.CreateBuilder(args);
 // fss
 // google sheets, using team3489 email for github
 
+// figured out how to do website login, use a query string in url that client routes
+
 // https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-6.0
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "AllowSpecificOrigins", builder =>
     {
-        builder.WithOrigins("https://db.team3489.tk", "https://localhost").AllowAnyHeader().AllowAnyMethod();
+        builder.WithOrigins("https://db.team3489.tk", "https://localhost", "https://team3489.tk").AllowAnyHeader().AllowAnyMethod();
     });
 });
 
