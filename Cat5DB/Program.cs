@@ -9,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 // figured out how to do website login, use a query string in url that client routes
 
 // https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-6.0
+
+// https://developers.google.com/sheets/api/quickstart/dotnet
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "AllowSpecificOrigins", builder =>
@@ -35,54 +38,29 @@ List<string> apiKeys;
 if (File.Exists(apiKeysPath)) apiKeys = new(File.ReadAllLines(apiKeysPath));
 else apiKeys = new();
 
+IReadOnlyList<string> publicEndpoints = new List<string> { "/guid" };
+
 app.Use(async (ctx, next) =>
 {
-    if (!ctx.Request.Query.ContainsKey("key"))
+    if (!publicEndpoints.Contains(ctx.Request.Path))
     {
-        ctx.Response.StatusCode = 400;
-        await ctx.Response.WriteAsync("400");
-        return;
-    }
-    if (!apiKeys.Contains(ctx.Request.Query["key"]))
-    {
-        ctx.Response.StatusCode = 401;
-        await ctx.Response.WriteAsync("401");
-        return;
+        if (!ctx.Request.Query.ContainsKey("key"))
+        {
+            ctx.Response.StatusCode = 400;
+            await ctx.Response.WriteAsync("400");
+            return;
+        }
+        if (!apiKeys.Contains(ctx.Request.Query["key"]))
+        {
+            ctx.Response.StatusCode = 401;
+            await ctx.Response.WriteAsync("401");
+            return;
+        }
     }
     await next(ctx);
 });
 
-// DB
-{
-    // Attendance Table
-    {
-        // Events Entry
-        {
-
-        }
-        // Names Entry
-        {
-            // List
-            {
-                // NameDBObject
-                {
-
-                }
-            }
-        }
-        // Attendance Entry
-        {
-
-        }
-        // Permissions Entry
-        {
-
-        }
-    }
-}
-
 DatabaseAccessor dba = new(database);
-
 await dba.Init();
 
 app.MapGet("/", async ctx =>
@@ -102,16 +80,19 @@ app.MapGet("/create", async ctx =>
     await ctx.Response.WriteAsJsonAsync(e);
 });
 
+app.MapGet("/", async ctx =>
+{
+    
+});
+
 app.MapGet("/events", async ctx =>
 {
     DateTime start = DateTime.MinValue;
     DateTime end = DateTime.MaxValue;
-    if (ctx.Request.Query.ContainsKey("start") && long.TryParse(ctx.Request.Query["start"], out long startFileTime))
-        if (ValidationHelpers.FileTimeValid(startFileTime))
-            start = DateTime.FromFileTime(startFileTime);
-    if (ctx.Request.Query.ContainsKey("end") && long.TryParse(ctx.Request.Query["end"], out long endFileTime))
-        if (ValidationHelpers.FileTimeValid(endFileTime))
-            end = DateTime.FromFileTime(endFileTime);
+    if (ctx.Request.Query.ContainsKey("start") && long.TryParse(ctx.Request.Query["start"], out long startFileTime) && ValidationHelpers.FileTimeValid(startFileTime))
+        start = DateTime.FromFileTime(startFileTime);
+    if (ctx.Request.Query.ContainsKey("end") && long.TryParse(ctx.Request.Query["end"], out long endFileTime) && ValidationHelpers.FileTimeValid(endFileTime))
+        end = DateTime.FromFileTime(endFileTime);
     List<Cat5Event> events = await dba.GetEvents(start, end);
     await ctx.Response.WriteAsJsonAsync(events);
 });
