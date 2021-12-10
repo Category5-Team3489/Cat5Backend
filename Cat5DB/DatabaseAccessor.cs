@@ -39,7 +39,7 @@ public class DatabaseAccessor
             foreach (Entry entry in personTable.table.Values)
             {
                 StringEntry person = entry as StringEntry;
-                if (person.value)
+                if (person.value == name)
                 {
                     nameExists = true;
                     break;
@@ -47,21 +47,42 @@ public class DatabaseAccessor
             }
             if (!nameExists)
             {
-                StringEntry person = new(name, guid.ToString());
+                StringEntry person = new(guid.ToString(), name);
                 person.TryAddChild(new ByteEntry("permission", permission));
                 person.TryAddChild(new Entry("attended"));
+                personTable.TryAddEntry(person);
+                cat5Person = new Cat5Person(guid, name, permission, new List<Guid>());
+            }
+        });
+        return cat5Person;
+    }
+    public async Task<Cat5Person> GetPerson(Guid guid)
+    {
+        Cat5Person cat5Person = null;
+        await database.ExecuteAsync(db =>
+        {
+            db.TryGetTable("people", out Table personTable);
+            if (personTable.TryGetEntry(guid.ToString(), out Entry entry))
+            {
+                StringEntry person = entry as StringEntry;
+                
+                cat5Person = new Cat5Person();
             }
         });
         return cat5Person;
     }
     public async Task<Cat5Person> GetPerson(string name)
     {
-        bool exists = false;
+        Cat5Person cat5Person = null;
         await database.ExecuteAsync(db =>
         {
             db.TryGetTable("people", out Table personTable);
-            exists = personTable.TryGetEntry()
+            if (personTable.TryGetEntry())
+            {
+
+            }
         });
+        return cat5Person;
     }
     #endregion Person
 
