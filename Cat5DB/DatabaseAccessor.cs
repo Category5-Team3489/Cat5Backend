@@ -27,10 +27,12 @@ public class DatabaseAccessor
         // Attended Events Entry: Name: AttendedEvents
             // Attended Event Entry: Name: EventId: Guid
 
+    /*
     public async Task<> CreatePerson(string personId, byte permissionLevel)
     {
         
     }
+    */
 
 
     public async Task<bool> EventExists(string name)

@@ -42,7 +42,7 @@ IReadOnlyList<string> publicEndpoints = new List<string> { "/guid" };
 
 app.Use(async (ctx, next) =>
 {
-    if (!publicEndpoints.Contains(ctx.Request.Path))
+    if (!publicEndpoints.Contains(ctx.Request.Path.ToString()))
     {
         if (!ctx.Request.Query.ContainsKey("key"))
         {
@@ -80,7 +80,7 @@ app.MapGet("/create", async ctx =>
     await ctx.Response.WriteAsJsonAsync(e);
 });
 
-app.MapGet("/", async ctx =>
+app.MapGet("/e", async ctx =>
 {
     
 });
