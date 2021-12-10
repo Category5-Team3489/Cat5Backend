@@ -27,25 +27,79 @@ public class DatabaseAccessor
         // Attended Events Entry: Name: AttendedEvents
             // Attended Event Entry: Name: EventId: Guid
 
-    /*
-    public async Task<> CreatePerson(string personId, byte permissionLevel)
+    #region Person
+    public async Task<Cat5Person> CreatePerson(string name, byte permission)
     {
-        
+        Guid guid = Guid.NewGuid();
+        Cat5Person cat5Person = null;
+        await database.ExecuteAsync(db =>
+        {
+            ab.TryGetTable("people", out Table personTable);
+            bool nameExists = false;
+            foreach (Entry entry in personTable.table.Values)
+            {
+                StringEntry person = entry as StringEntry;
+                if (person.value)
+                {
+                    nameExists = true;
+                    break;
+                }
+            }
+            if (!nameExists)
+            {
+                StringEntry person = new(name, guid.ToString());
+                person.TryAddChild(new ByteEntry("permission", permission));
+                person.TryAddChild(new Entry("attended"));
+            }
+        });
+        return cat5Person;
     }
-    */
-
-
-    public async Task<bool> EventExists(string name)
+    public async Task<Cat5Person> GetPerson(string name)
     {
         bool exists = false;
         await database.ExecuteAsync(db =>
         {
-            db.TryGetTable("events", out Table eventTable);
-            exists = eventTable.TryGetEntry(name, out _);
+            db.TryGetTable("people", out Table personTable);
+            exists = personTable.TryGetEntry()
         });
-        return exists;
     }
+    #endregion Person
 
+    #region Event
+    public async Task<Cat5Event> CreateEvent(string name, string type, DateTime time, TimeSpan length)
+    {
+        Guid guid = Guid.NewGuid();
+        await database.ExecuteAsync(db =>
+        {
+            db.TryGetTable("events", out Table eventTable);
+            StringEntry @event = new(guid.ToString(), name);
+            @event.TryAddChild(new StringEntry("type", type));
+            @event.TryAddChild(new LongEntry("time", time.ToFileTime()));
+            @event.TryAddChild(new LongEntry("length", length.Ticks));
+            eventTable.TryAddEntry(@event);
+        });
+        return new Cat5Event(guid, name, type, time, length);
+    }
+    public async Task<Cat5Event> GetEvent(Guid guid)
+    {
+        Cat5Event cat5Event = null;
+        await database.ExecuteAsync(db =>
+        {
+            db.TryGetTable("events", out Table eventTable);
+            if (eventTable.TryGetEntry(guid, out Entry entry))
+            {
+                StringEntry @event = entry as StringEntry;
+                @event.TryGetChild("type", out Entry typeEntry);
+                string type = (typeEntry as StringEntry).value;
+                @event.TryGetChild("time", out Entry timeEntry);
+                DateTime time = DateTime.FromFileTime((timeEntry as LongEntry).value);
+                @event.TryGetChild("length", out Entry lengthEntry);
+                TimeSpan length = new((lengthEntry as LongEntry).value);
+                cat5Event = new Cat5Event(Guid.Parse(@event.Name), @event.value, type, time, length);
+            }
+        });
+        return cat5Event;
+    }
     public async Task<List<Cat5Event>> GetEvents(DateTime start, DateTime end)
     {
         List<Cat5Event> events = new();
@@ -76,19 +130,5 @@ public class DatabaseAccessor
         });
         return events;
     }
-
-    public async Task<Cat5Event> CreateEvent(string name, string type, DateTime time, TimeSpan length)
-    {
-        Guid guid = Guid.NewGuid();
-        await database.ExecuteAsync(db =>
-        {
-            db.TryGetTable("events", out Table eventTable);
-            StringEntry @event = new(guid.ToString(), name);
-            @event.TryAddChild(new StringEntry("type", type));
-            @event.TryAddChild(new LongEntry("time", time.ToFileTime()));
-            @event.TryAddChild(new LongEntry("length", length.Ticks));
-            eventTable.TryAddEntry(@event);
-        });
-        return new Cat5Event(guid, name, type, time, length);
-    }
+    #endregion Event
 }
