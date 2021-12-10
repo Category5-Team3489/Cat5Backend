@@ -12,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // https://developers.google.com/sheets/api/quickstart/dotnet
 
+// could use channels instead of concurrent queue for synced actions in database
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "AllowSpecificOrigins", builder =>

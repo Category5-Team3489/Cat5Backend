@@ -65,8 +65,14 @@ public class DatabaseAccessor
             if (personTable.TryGetEntry(guid.ToString(), out Entry entry))
             {
                 StringEntry person = entry as StringEntry;
-                
-                cat5Person = new Cat5Person();
+                string name = person.value;
+                person.TryGetChild("permission", out Entry permissionEntry);
+                byte permission = (permissionEntry as ByteEntry).value;
+                person.TryGetEntry("attended", out Entry attendedEntry);
+                List<Guid> attended = new();
+                foreach (Entry eventEntry in attendedEntry.children.Values)
+                    attended.Add(eventEntry.Name);
+                cat5Person = new Cat5Person(guid, name, permission, attended);
             }
         });
         return cat5Person;
@@ -79,7 +85,7 @@ public class DatabaseAccessor
             db.TryGetTable("people", out Table personTable);
             if (personTable.TryGetEntry())
             {
-
+                
             }
         });
         return cat5Person;
