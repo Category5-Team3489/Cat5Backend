@@ -28,6 +28,7 @@ public class DatabaseAccessor
             // Attended Event Entry: Name: EventId: Guid
 
     #region Person
+    /*
     public async Task<Cat5Person> CreatePerson(string name, byte permission)
     {
         Guid guid = Guid.NewGuid();
@@ -56,6 +57,8 @@ public class DatabaseAccessor
         });
         return cat5Person;
     }
+    */
+    /*
     public async Task<Cat5Person> GetPerson(Guid guid)
     {
         Cat5Person cat5Person = null;
@@ -77,6 +80,8 @@ public class DatabaseAccessor
         });
         return cat5Person;
     }
+    */
+    /*
     public async Task<Cat5Person> GetPerson(string name)
     {
         Cat5Person cat5Person = null;
@@ -90,6 +95,7 @@ public class DatabaseAccessor
         });
         return cat5Person;
     }
+    */
     #endregion Person
 
     #region Event
@@ -107,6 +113,7 @@ public class DatabaseAccessor
         });
         return new Cat5Event(guid, name, type, time, length);
     }
+    /*
     public async Task<Cat5Event> GetEvent(Guid guid)
     {
         Cat5Event cat5Event = null;
@@ -127,6 +134,7 @@ public class DatabaseAccessor
         });
         return cat5Event;
     }
+    */
     public async Task<List<Cat5Event>> GetEvents(DateTime start, DateTime end)
     {
         List<Cat5Event> events = new();

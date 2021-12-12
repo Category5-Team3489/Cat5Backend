@@ -18,7 +18,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "AllowSpecificOrigins", builder =>
     {
-        builder.WithOrigins("https://db.team3489.tk", "https://localhost", "https://team3489.tk").AllowAnyHeader().AllowAnyMethod();
+        builder.WithOrigins("https://localhost", "https://team3489.tk").AllowAnyHeader().AllowAnyMethod();
     });
 });
 
@@ -44,6 +44,16 @@ IReadOnlyList<string> publicEndpoints = new List<string> { "/guid" };
 
 app.Use(async (ctx, next) =>
 {
+    Console.WriteLine(ctx.Request.Host.ToString());
+    /*
+    if (ctx.Request.Host.ToString() != "db.team3489.tk:8443")
+    {
+        find correct port and how that works
+        ctx.Response.StatusCode = 403;
+        await ctx.Response.WriteAsync("403");
+        return;
+    }
+    */
     if (!publicEndpoints.Contains(ctx.Request.Path.ToString()))
     {
         if (!ctx.Request.Query.ContainsKey("key"))
@@ -80,11 +90,6 @@ app.MapGet("/create", async ctx =>
 {
     var e = await dba.CreateEvent("12/8/21 Meeting", "Meeting", new DateTime(2021, 12, 8, 17, 30, 0), new TimeSpan(2, 0, 0));
     await ctx.Response.WriteAsJsonAsync(e);
-});
-
-app.MapGet("/e", async ctx =>
-{
-    
 });
 
 app.MapGet("/events", async ctx =>
