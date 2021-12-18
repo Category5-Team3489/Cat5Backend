@@ -10,4 +10,8 @@
     <PackageReference Include="MetaDB" Version="1.0.9" />
   </ItemGroup>
 
+  <Target Name="PublishCat5DB" AfterTargets="Publish">
+    <Exec Command="Cat5DB.Publish.exe" />
+  </Target>
+
 </Project>
