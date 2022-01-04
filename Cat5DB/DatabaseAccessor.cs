@@ -24,6 +24,7 @@ public class DatabaseAccessor
         // LongEntry: EventLength: TimeSpan: Ticks
     // Person StringEntry: Name: PersonId: Guid, Value: Full Name
         // Permission Level ByteEntry: Name: PermissionLevel, Value: Permission Level
+        // Discord Id ULongEntry: Name DiscordId, Value: Discord Id
         // Attended Events Entry: Name: AttendedEvents
             // Attended Event Entry: Name: EventId: Guid
 
