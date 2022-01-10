@@ -1,5 +1,7 @@
 var builder = WebApplication.CreateBuilder();
 
+Console.WriteLine(Guid.NewGuid().ToString());
+
 // UNFRICK YOU SSL <3
 
 // lock in really old attendance
@@ -44,16 +46,12 @@ IReadOnlyList<string> publicEndpoints = new List<string> { "/guid" };
 
 app.Use(async (ctx, next) =>
 {
-    Console.WriteLine(ctx.Request.Host.ToString());
-    /*
-    if (ctx.Request.Host.ToString() != "db.team3489.tk:8443")
+    if (ctx.Request.Host.ToString() != "db.team3489.tk")
     {
-        find correct port and how that works
         ctx.Response.StatusCode = 403;
         await ctx.Response.WriteAsync("403");
         return;
     }
-    */
     if (!publicEndpoints.Contains(ctx.Request.Path.ToString()))
     {
         if (!ctx.Request.Query.ContainsKey("key"))

@@ -17,8 +17,8 @@ var commands = discord.UseCommandsNext(new CommandsNextConfiguration()
 });
 
 commands.RegisterCommands<AttendModule>();
-commands.RegisterCommands<UnattendModule>();
-commands.RegisterCommands<NameModule>();
+//commands.RegisterCommands<UnattendModule>();
+//commands.RegisterCommands<NameModule>();
 
 await discord.ConnectAsync();
 

@@ -12,3 +12,5 @@ global using DSharpPlus.CommandsNext.Attributes;
 global using DSharpPlus.Interactivity.Extensions;
 global using DSharpPlus.Interactivity;
 global using DSharpPlus.Entities;
+
+global using Cat5Bot.Commands;
