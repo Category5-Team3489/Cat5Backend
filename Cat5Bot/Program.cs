@@ -1,6 +1,9 @@
 ﻿Console.WriteLine("Hello, World!");
 
-string token = File.ReadAllText(Directory.GetCurrentDirectory() + "/token.secret");
+string[] secrets = File.ReadAllLines(Directory.GetCurrentDirectory() + "/token.secret");
+
+string token = secrets[0];
+IO.apiKey = secrets[1];
 
 var discord = new DiscordClient(new DiscordConfiguration()
 {
@@ -18,7 +21,7 @@ var commands = discord.UseCommandsNext(new CommandsNextConfiguration()
 
 commands.RegisterCommands<AttendModule>();
 //commands.RegisterCommands<UnattendModule>();
-//commands.RegisterCommands<NameModule>();
+commands.RegisterCommands<NameModule>();
 
 await discord.ConnectAsync();
 

@@ -4,4 +4,4 @@
 
 public record Cat5Event(Guid Guid, string Name, string Type, DateTime Time, TimeSpan Length);
 
-public record Cat5Person(Guid Guid, string Name, byte Permission, List<Guid> Attended);
+public record Cat5Person(Guid Guid, string Name, byte Permission, ulong DiscordId, List<Guid> Attended);

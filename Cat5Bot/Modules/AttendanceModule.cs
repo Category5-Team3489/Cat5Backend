@@ -1,4 +1,4 @@
-namespace Cat5Bot.Commands; //{}
+namespace Cat5Bot.Modules; //{}
 
 [Group("attend"), Aliases("a"), Description("Used for attendance actions.")]
 public class AttendModule : BaseCommandModule

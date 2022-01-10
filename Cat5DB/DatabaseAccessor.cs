@@ -29,36 +29,30 @@ public class DatabaseAccessor
             // Attended Event Entry: Name: EventId: Guid
 
     #region Person
-    /*
-    public async Task<Cat5Person> CreatePerson(string name, byte permission)
+    public async Task<Cat5Person> CreatePerson(string name, byte permission, ulong discordId)
     {
         Guid guid = Guid.NewGuid();
         Cat5Person cat5Person = null;
         await database.ExecuteAsync(db =>
         {
-            ab.TryGetTable("people", out Table personTable);
-            bool nameExists = false;
-            foreach (Entry entry in personTable.table.Values)
+            db.TryGetTable("people", out Table personTable);
+            bool nameExists = personTable.table.Values.Any(entry =>
             {
                 StringEntry person = entry as StringEntry;
-                if (person.value == name)
-                {
-                    nameExists = true;
-                    break;
-                }
-            }
+                return person.value == name;
+            });
             if (!nameExists)
             {
                 StringEntry person = new(guid.ToString(), name);
                 person.TryAddChild(new ByteEntry("permission", permission));
+                person.TryAddChild(new ULongEntry("discordId", discordId));
                 person.TryAddChild(new Entry("attended"));
                 personTable.TryAddEntry(person);
-                cat5Person = new Cat5Person(guid, name, permission, new List<Guid>());
+                cat5Person = new Cat5Person(guid, name, permission, discordId, new List<Guid>());
             }
         });
         return cat5Person;
     }
-    */
     /*
     public async Task<Cat5Person> GetPerson(Guid guid)
     {
@@ -97,6 +91,36 @@ public class DatabaseAccessor
         return cat5Person;
     }
     */
+    public async Task<List<Cat5Person>> GetPeople()
+    {
+        List<Cat5Person> people = new();
+        await database.ExecuteAsync(db =>
+        {
+            if (db.TryGetTable("people", out Table eventTable))
+            {
+                foreach (Entry entry in eventTable.table.Values)
+                {
+                    StringEntry person = entry as StringEntry;
+
+                    person.TryGetChild("permission", out Entry permissionEntry);
+                    byte permission = (permissionEntry as ByteEntry).value;
+
+                    person.TryGetChild("discordId", out Entry discordIDEntry);
+                    ulong discordId = (discordIDEntry as ULongEntry).value;
+
+                    List<Guid> attended = new();
+                    person.TryGetChild("attended", out Entry attendedEntry);
+                    foreach (string attendedEvent in attendedEntry.children.Keys)
+                    {
+                        attended.Add(Guid.Parse(attendedEvent));
+                    }
+
+                    people.Add(new Cat5Person(Guid.Parse(person.Name), person.value, permission, discordId, attended));
+                }
+            }
+        });
+        return people;
+    }
     #endregion Person
 
     #region Event

@@ -84,6 +84,25 @@ app.MapGet("/", async ctx =>
     //await ctx.Response.WriteAsync("Hello, World!");
 });
 
+app.MapGet("/createperson", async ctx =>
+{
+    if (!ctx.Request.Query.ContainsKey("name"))
+        return;
+    string name = ctx.Request.Query["name"];
+    if (!ctx.Request.Query.ContainsKey("discordId") || !ulong.TryParse(ctx.Request.Query["discordId"], out ulong discordId))
+        return;
+
+
+    var p = await dba.CreatePerson(name, 0, discordId);
+    await ctx.Response.WriteAsJsonAsync(p);
+});
+
+app.MapGet("/people", async ctx =>
+{
+    var p = await dba.GetPeople();
+    await ctx.Response.WriteAsJsonAsync(p);
+});
+
 app.MapGet("/create", async ctx =>
 {
     var e = await dba.CreateEvent("12/8/21 Meeting", "Meeting", new DateTime(2021, 12, 8, 17, 30, 0), new TimeSpan(2, 0, 0));
