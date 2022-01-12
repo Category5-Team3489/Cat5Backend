@@ -53,6 +53,26 @@ public class DatabaseAccessor
         });
         return cat5Person;
     }
+    public async Task<Cat5Person> DeletePerson(Func<Cat5Person, bool> shouldDelete)
+    {
+        Cat5Person cat5Person = null;
+        await database.ExecuteAsync(db =>
+        {
+            Table personTable = db.GetTable("people");
+            Entry remove = null;
+            foreach (Entry entry in personTable.table.Values)
+            {
+                cat5Person = UnwrapPerson(entry);
+                if (shouldDelete(cat5Person))
+                {
+                    remove = entry;
+                    break;
+                }
+            }
+            personTable.table.Remove(remove);
+        });
+        return cat5Person;
+    }
     /*
     public async Task<Cat5Person> GetPerson(Guid guid)
     {
