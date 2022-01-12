@@ -3,7 +3,7 @@
 string[] secrets = File.ReadAllLines(Directory.GetCurrentDirectory() + "/token.secret");
 
 string token = secrets[0];
-IO.apiKey = secrets[1];
+IO.ApiKey = secrets[1];
 
 var discord = new DiscordClient(new DiscordConfiguration()
 {

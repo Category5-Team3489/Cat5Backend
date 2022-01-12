@@ -1,4 +1,4 @@
-﻿namespace Cat5DB;
+﻿namespace Cat5Backend.Shared;
 
 //https://devblogs.microsoft.com/dotnet/try-the-new-system-text-json-source-generator/
 

@@ -96,32 +96,59 @@ public class DatabaseAccessor
         List<Cat5Person> people = new();
         await database.ExecuteAsync(db =>
         {
-            if (db.TryGetTable("people", out Table eventTable))
+            Table personTable = db.GetTable("people");
+            foreach (Entry entry in personTable.table.Values)
             {
-                foreach (Entry entry in eventTable.table.Values)
-                {
-                    StringEntry person = entry as StringEntry;
-
-                    person.TryGetChild("permission", out Entry permissionEntry);
-                    byte permission = (permissionEntry as ByteEntry).value;
-
-                    person.TryGetChild("discordId", out Entry discordIDEntry);
-                    ulong discordId = (discordIDEntry as ULongEntry).value;
-
-                    List<Guid> attended = new();
-                    person.TryGetChild("attended", out Entry attendedEntry);
-                    foreach (string attendedEvent in attendedEntry.children.Keys)
-                    {
-                        attended.Add(Guid.Parse(attendedEvent));
-                    }
-
-                    people.Add(new Cat5Person(Guid.Parse(person.Name), person.value, permission, discordId, attended));
-                }
+                people.Add(UnwrapPerson(entry));
             }
         });
         return people;
     }
+
+    public Cat5Person UnwrapPerson(Entry entry)
+    {
+        StringEntry person = entry as StringEntry;
+
+        byte permission = person.GetByte("permission").value;
+
+        ulong discordId = person.GetULong("discordId").value;
+
+        List<Guid> attended = new();
+        Entry attendedEntry = person.GetChild("attended");
+        if (attendedEntry.children != null)
+        {
+            foreach (string attendedEvent in attendedEntry.children.Keys)
+            {
+                attended.Add(Guid.Parse(attendedEvent));
+            }
+        }
+
+        return new Cat5Person(Guid.Parse(person.Name), person.value, permission, discordId, attended);
+    }
     #endregion Person
+
+    #region Attendance
+    public async Task<Cat5Person> AttendEvent(Guid personId, Guid eventId)
+    {
+        Cat5Person attendingPerson = null;
+        await database.ExecuteAsync(db =>
+        {
+            Table personTable = db.GetTable("people");
+            foreach (Entry entry in personTable.table.Values)
+            {
+                StringEntry person = entry as StringEntry;
+                if (person.Name == personId.ToString())
+                {
+                    Entry attendedEntry = person.GetChild("attended");
+                    if (!attendedEntry.TryAddChild(new Entry(eventId.ToString()))) break;
+                    attendingPerson = UnwrapPerson(person);
+                    break;
+                }
+            }
+        });
+        return attendingPerson;
+    }
+    #endregion Attendance
 
     #region Event
     public async Task<Cat5Event> CreateEvent(string name, string type, DateTime time, TimeSpan length)
@@ -138,28 +165,23 @@ public class DatabaseAccessor
         });
         return new Cat5Event(guid, name, type, time, length);
     }
-    /*
     public async Task<Cat5Event> GetEvent(Guid guid)
     {
         Cat5Event cat5Event = null;
         await database.ExecuteAsync(db =>
         {
             db.TryGetTable("events", out Table eventTable);
-            if (eventTable.TryGetEntry(guid, out Entry entry))
+            if (eventTable.TryGetEntry(guid.ToString(), out Entry entry))
             {
                 StringEntry @event = entry as StringEntry;
-                @event.TryGetChild("type", out Entry typeEntry);
-                string type = (typeEntry as StringEntry).value;
-                @event.TryGetChild("time", out Entry timeEntry);
-                DateTime time = DateTime.FromFileTime((timeEntry as LongEntry).value);
-                @event.TryGetChild("length", out Entry lengthEntry);
-                TimeSpan length = new((lengthEntry as LongEntry).value);
+                string type = @event.GetString("type").value;
+                DateTime time = DateTime.FromFileTime(@event.GetLong("time").value);
+                TimeSpan length = new(@event.GetLong("length").value);
                 cat5Event = new Cat5Event(Guid.Parse(@event.Name), @event.value, type, time, length);
             }
         });
         return cat5Event;
     }
-    */
     public async Task<List<Cat5Event>> GetEvents(DateTime start, DateTime end)
     {
         List<Cat5Event> events = new();
@@ -171,17 +193,10 @@ public class DatabaseAccessor
                 {
                     StringEntry @event = entry as StringEntry;
 
-                    @event.TryGetChild("type", out Entry typeEntry);
-                    string type = (typeEntry as StringEntry).value;
-
-                    @event.TryGetChild("time", out Entry timeEntry);
-                    DateTime time = DateTime.FromFileTime((timeEntry as LongEntry).value);
-
+                    string type = @event.GetString("type").value;
+                    DateTime time = DateTime.FromFileTime(@event.GetLong("time").value);
                     if (time < start) continue;
-
-                    @event.TryGetChild("length", out Entry lengthEntry);
-                    TimeSpan length = new((lengthEntry as LongEntry).value);
-
+                    TimeSpan length = new(@event.GetLong("length").value);
                     if (time.Add(length) > end) continue;
 
                     events.Add(new Cat5Event(Guid.Parse(@event.Name), @event.value, type, time, length));

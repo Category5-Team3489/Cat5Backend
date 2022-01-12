@@ -16,6 +16,10 @@ Console.WriteLine(Guid.NewGuid().ToString());
 
 // could use channels instead of concurrent queue for synced actions in database
 
+
+
+// def need more levels of perms, currently anyone with bot api key could do unintended things
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "AllowSpecificOrigins", builder =>
@@ -46,7 +50,7 @@ IReadOnlyList<string> publicEndpoints = new List<string> { "/guid" };
 
 app.Use(async (ctx, next) =>
 {
-    if (ctx.Request.Host.ToString() != "db.team3489.tk")
+    if (ctx.Request.Host.ToString() != "db.team3489.tk" && !app.Environment.IsDevelopment())
     {
         ctx.Response.StatusCode = 403;
         await ctx.Response.WriteAsync("403");
@@ -103,9 +107,31 @@ app.MapGet("/people", async ctx =>
     await ctx.Response.WriteAsJsonAsync(p);
 });
 
-app.MapGet("/create", async ctx =>
+app.MapGet("/attendevent", async ctx =>
 {
-    var e = await dba.CreateEvent("12/8/21 Meeting", "Meeting", new DateTime(2021, 12, 8, 17, 30, 0), new TimeSpan(2, 0, 0));
+    if (!ctx.Request.Query.ContainsKey("personId")) return;
+    if (!ctx.Request.Query.ContainsKey("eventId")) return;
+    if (!Guid.TryParse(ctx.Request.Query["personId"], out Guid personId))
+        return;
+    if (!Guid.TryParse(ctx.Request.Query["eventId"], out Guid eventId))
+        return;
+    var p = await dba.AttendEvent(personId, eventId);
+    await ctx.Response.WriteAsJsonAsync(p);
+});
+
+app.MapGet("/createevent", async ctx =>
+{
+    if (!ctx.Request.Query.ContainsKey("name")) return;
+    if (!ctx.Request.Query.ContainsKey("type")) return;
+    if (!ctx.Request.Query.ContainsKey("time")) return;
+    if (!ctx.Request.Query.ContainsKey("length")) return;
+
+    if (!long.TryParse(ctx.Request.Query["time"], out long timeFileTime) || !ValidationHelpers.FileTimeValid(timeFileTime))
+        return;
+    if (!long.TryParse(ctx.Request.Query["length"], out long lengthTicks))
+        return;
+
+    var e = await dba.CreateEvent(ctx.Request.Query["name"], ctx.Request.Query["type"], DateTime.FromFileTime(timeFileTime), TimeSpan.FromTicks(lengthTicks));
     await ctx.Response.WriteAsJsonAsync(e);
 });
 
